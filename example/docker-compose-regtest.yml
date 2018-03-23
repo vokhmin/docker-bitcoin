@@ -1,0 +1,32 @@
+version: "3"
+services:
+  bitcoind:
+    image: amacneil/bitcoin
+    # specify additional command line arguments here
+    command: bitcoind -regtest
+    healthcheck:
+      test: ["CMD", "/entrypoint.sh", "bitcoin-cli", "-regtest", "getinfo"]
+    ports:
+      # change to 18333 if running testnet
+      - "18332:18332"
+      - "8332:8332"
+    volumes:
+      - bitcoin-data:/data
+    networks:
+      - bitcoin
+  bitcoin-cli:
+    image: amacneil/bitcoin
+    entrypoint: ["/entrypoint.sh", "bitcoin-cli", "-regtest", "-rpcport=18332"]
+    command: "getinfo"
+    volumes:
+      - bitcoin-data:/data
+    depends_on:
+      - bitcoind
+    network_mode: service:bitcoind
+
+networks:
+  bitcoin:
+
+volumes:
+  bitcoin-data:
+
